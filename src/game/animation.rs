@@ -50,15 +50,18 @@ fn update_animation_movement(
 }
 
 /// Update the animation timer.
-fn update_animation_timer(time: Res<Time>, mut query:Query<(&mut PlayerAnimation, Option<&mut BasicAnimation>)>) {
-        for (mut player_animation, maybe_basic_animation) in &mut query {
-            player_animation.update_timer(time.delta());
-    
-            if let Some(mut basic_animation) = maybe_basic_animation {
-                basic_animation.update_timer(time.delta());
-            }
+fn update_animation_timer(
+    time: Res<Time>,
+    mut query: Query<(&mut PlayerAnimation, Option<&mut BasicAnimation>)>,
+) {
+    for (mut player_animation, maybe_basic_animation) in &mut query {
+        player_animation.update_timer(time.delta());
+
+        if let Some(mut basic_animation) = maybe_basic_animation {
+            basic_animation.update_timer(time.delta());
         }
     }
+}
 
 // /// Update the texture atlas to reflect changes in the animation.
 fn update_animation_atlas(mut query: Query<(&PlayerAnimation, &mut TextureAtlas)>) {
@@ -111,7 +114,7 @@ pub struct PlayerAnimation {
 pub struct BasicAnimation {
     timer: Timer,
     frame: usize,
-    num_frames: usize
+    num_frames: usize,
 }
 
 #[derive(Reflect, PartialEq)]
@@ -119,9 +122,9 @@ pub enum PlayerAnimationState {
     Idling,
     Walking,
 }
-impl BasicAnimation{
+impl BasicAnimation {
     /// The number of idle frames.
-   // const FRAMES: usize = 2;
+    // const FRAMES: usize = 2;
     /// The duration of each idle frame.
     const INTERVAL: Duration = Duration::from_millis(500);
 
@@ -129,12 +132,11 @@ impl BasicAnimation{
         Self::idling()
     }
 
-
     fn idling() -> Self {
         Self {
             timer: Timer::new(Self::INTERVAL, TimerMode::Repeating),
             frame: 0,
-            num_frames: 2
+            num_frames: 2,
         }
     }
     pub fn update_timer(&mut self, delta: Duration) {
@@ -143,15 +145,11 @@ impl BasicAnimation{
             self.frame = (self.frame + 1) % self.num_frames;
         }
     }
-       /// Return sprite index in the atlas.
-       pub fn get_atlas_index(&self) -> usize {
-       self.frame
-     
-        }
+    /// Return sprite index in the atlas.
+    pub fn get_atlas_index(&self) -> usize {
+        self.frame
     }
-
-
-
+}
 
 impl PlayerAnimation {
     /// The number of idle frames.

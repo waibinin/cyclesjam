@@ -6,37 +6,33 @@ use bevy::prelude::*;
 use super::player::SpawnPlayer;
 
 use crate::game::{
-    animation::BasicAnimation , 
-    assets::{HandleMap, ImageKey}};
-use crate::Counter;
+    animation::BasicAnimation,
+    assets::{HandleMap, ImageKey},
+};
 use crate::screen::Screen;
-
- 
+use crate::Counter;
 
 pub(super) fn plugin(app: &mut App) {
     app.observe(spawn_level)
-    .observe(spawn_npc)
-    .add_systems(Update, spawn_someone);
+        .observe(spawn_npc)
+        .add_systems(Update, spawn_someone);
 }
 
 #[derive(Event, Debug)]
 pub struct SpawnLevel;
 
-fn spawn_level(_trigger: Trigger<SpawnLevel>, mut commands: Commands,) {
+fn spawn_level(_trigger: Trigger<SpawnLevel>, mut commands: Commands) {
     // The only thing we have in our level is a player,
     // but add things like walls etc. here.
     commands.trigger(SpawnPlayer);
 }
 
-fn spawn_someone(mut counter:ResMut<Counter>,mut commands:Commands)
-{
-    if counter.0>0.0
-    {
+fn spawn_someone(mut counter: ResMut<Counter>, mut commands: Commands) {
+    if counter.0 > 0.0 {
         commands.trigger(SpawnNPC);
-        counter.0 =0.0;
+        counter.0 = 0.0;
     }
 }
-
 
 #[derive(Event, Debug)]
 pub struct SpawnNPC;
@@ -44,10 +40,12 @@ pub struct SpawnNPC;
 #[reflect(Component)]
 pub struct Npc;
 
-
-
-fn spawn_npc(_trigger: Trigger<SpawnNPC>, mut commands: Commands, image_handles: Res<HandleMap<ImageKey>>, mut texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>) {
-
+fn spawn_npc(
+    _trigger: Trigger<SpawnNPC>,
+    mut commands: Commands,
+    image_handles: Res<HandleMap<ImageKey>>,
+    mut texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,
+) {
     let layout = TextureAtlasLayout::from_grid(UVec2::splat(48), 2, 1, Some(UVec2::splat(1)), None);
     let texture_atlas_layout = texture_atlas_layouts.add(layout);
     let npc_animation = BasicAnimation::new();
@@ -58,15 +56,14 @@ fn spawn_npc(_trigger: Trigger<SpawnNPC>, mut commands: Commands, image_handles:
         SpriteBundle {
             texture: image_handles[&ImageKey::Npc].clone_weak(),
             transform: Transform::from_scale(Vec2::splat(2.0).extend(1.0))
-            .with_translation(Vec3::new(100.0, 100.0, 0.0)),
+                .with_translation(Vec3::new(100.0, 100.0, 0.0)),
             ..Default::default()
-        }
-        ,
+        },
         TextureAtlas {
             layout: texture_atlas_layout.clone(),
             index: npc_animation.get_atlas_index(),
         },
         npc_animation,
-        StateScoped(Screen::Playing)
+        StateScoped(Screen::Playing),
     ));
 }

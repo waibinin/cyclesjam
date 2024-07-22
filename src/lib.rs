@@ -57,7 +57,7 @@ impl Plugin for AppPlugin {
 
         // Add other plugins.
         app.add_plugins((game::plugin, screen::plugin, ui::plugin))
-        .insert_resource(Counter(0.0));
+            .insert_resource(Counter(0.0));
 
         // Enable dev tools for dev builds.
         #[cfg(feature = "dev")]
