@@ -30,7 +30,7 @@ fn spawn_level(_trigger: Trigger<SpawnLevel>, mut commands: Commands,) {
 
 fn spawn_someone(mut counter:ResMut<Counter>,mut commands:Commands)
 {
-    if(counter.0>0.0)
+    if counter.0>0.0
     {
         commands.trigger(SpawnNPC);
         counter.0 =0.0;
