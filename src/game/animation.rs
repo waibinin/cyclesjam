@@ -14,6 +14,7 @@ use crate::AppSet;
 pub(super) fn plugin(app: &mut App) {
     // Animate and play sound effects based on controls.
     app.register_type::<PlayerAnimation>();
+    app.register_type::<BasicAnimation>();
     app.add_systems(
         Update,
         (
@@ -49,13 +50,17 @@ fn update_animation_movement(
 }
 
 /// Update the animation timer.
-fn update_animation_timer(time: Res<Time>, mut query: Query<&mut PlayerAnimation>) {
-    for mut animation in &mut query {
-        animation.update_timer(time.delta());
+fn update_animation_timer(time: Res<Time>, mut query:Query<(&mut PlayerAnimation, Option<&mut BasicAnimation>)>) {
+        for (mut player_animation, maybe_basic_animation) in &mut query {
+            player_animation.update_timer(time.delta());
+    
+            if let Some(mut basic_animation) = maybe_basic_animation {
+                basic_animation.update_timer(time.delta());
+            }
+        }
     }
-}
 
-/// Update the texture atlas to reflect changes in the animation.
+// /// Update the texture atlas to reflect changes in the animation.
 fn update_animation_atlas(mut query: Query<(&PlayerAnimation, &mut TextureAtlas)>) {
     for (animation, mut atlas) in &mut query {
         if animation.changed() {
@@ -63,6 +68,22 @@ fn update_animation_atlas(mut query: Query<(&PlayerAnimation, &mut TextureAtlas)
         }
     }
 }
+// fn update_animation_atlas(
+//     mut query: QuerySet<(
+//         Query<(&PlayerAnimation, &mut TextureAtlasSprite)>,
+//         Query<(&BasicAnimation, &mut TextureAtlasSprite)>
+//     )>
+// ) {
+//     for (animation, mut sprite) in query.q0_mut().iter_mut() {
+//         if animation.changed() {
+//             sprite.index = animation.get_atlas_index();
+//         }
+//     }
+
+//     for (animation, mut sprite) in query.q1_mut().iter_mut() {
+//         sprite.index = animation.get_atlas_index();
+//     }
+// }
 
 /// If the player is moving, play a step sound effect synchronized with the animation.
 fn trigger_step_sfx(mut commands: Commands, mut step_query: Query<&PlayerAnimation>) {
@@ -85,12 +106,52 @@ pub struct PlayerAnimation {
     frame: usize,
     state: PlayerAnimationState,
 }
+#[derive(Component, Reflect)]
+#[reflect(Component)]
+pub struct BasicAnimation {
+    timer: Timer,
+    frame: usize,
+    num_frames: usize
+}
 
 #[derive(Reflect, PartialEq)]
 pub enum PlayerAnimationState {
     Idling,
     Walking,
 }
+impl BasicAnimation{
+    /// The number of idle frames.
+   // const FRAMES: usize = 2;
+    /// The duration of each idle frame.
+    const INTERVAL: Duration = Duration::from_millis(500);
+
+    pub fn new() -> Self {
+        Self::idling()
+    }
+
+
+    fn idling() -> Self {
+        Self {
+            timer: Timer::new(Self::INTERVAL, TimerMode::Repeating),
+            frame: 0,
+            num_frames: 2
+        }
+    }
+    pub fn update_timer(&mut self, delta: Duration) {
+        self.timer.tick(delta);
+        if self.timer.finished() {
+            self.frame = (self.frame + 1) % self.num_frames;
+        }
+    }
+       /// Return sprite index in the atlas.
+       pub fn get_atlas_index(&self) -> usize {
+       self.frame
+     
+        }
+    }
+
+
+
 
 impl PlayerAnimation {
     /// The number of idle frames.

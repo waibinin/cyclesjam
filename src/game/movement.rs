@@ -5,7 +5,7 @@
 
 use bevy::{prelude::*, window::PrimaryWindow};
 
-use crate::AppSet;
+use crate::{AppSet, Counter};
 
 pub(super) fn plugin(app: &mut App) {
     // Record directional input as movement controls.
@@ -85,12 +85,23 @@ pub struct WrapWithinWindow;
 fn wrap_within_window(
     window_query: Query<&Window, With<PrimaryWindow>>,
     mut wrap_query: Query<&mut Transform, With<WrapWithinWindow>>,
+    mut counter:ResMut<Counter>
 ) {
+   
     let size = window_query.single().size() + 256.0;
     let half_size = size / 2.0;
     for mut transform in &mut wrap_query {
         let position = transform.translation.xy();
         let wrapped = (position + half_size).rem_euclid(size) - half_size;
+ // Check if the character has moved out of the screen bounds
+ if (position.x < -half_size.x && wrapped.x >= -half_size.x) || 
+ (position.x > half_size.x && wrapped.x <= half_size.x) ||
+ (position.y < -half_size.y && wrapped.y >= -half_size.y) || 
+ (position.y > half_size.y && wrapped.y <= half_size.y) {
+  counter.0 += 1.0;
+  info!("Moved from the room : {:?} times", counter.0);
+}
+
         transform.translation = wrapped.extend(transform.translation.z);
     }
 }

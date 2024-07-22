@@ -17,7 +17,7 @@ pub(super) fn plugin(app: &mut App) {
 
 #[derive(Copy, Clone, Eq, PartialEq, Hash, Reflect)]
 pub enum ImageKey {
-    Ducky,
+    Ducky,NPC
 }
 
 impl AssetKey for ImageKey {
@@ -30,7 +30,16 @@ impl FromWorld for HandleMap<ImageKey> {
         [(
             ImageKey::Ducky,
             asset_server.load_with_settings(
-                "images/ducky.png",
+                "images/guy.png",
+                |settings: &mut ImageLoaderSettings| {
+                    settings.sampler = ImageSampler::nearest();
+                },
+            ),
+        ),
+        (
+            ImageKey::NPC,
+            asset_server.load_with_settings(
+                "images/npc1.png",
                 |settings: &mut ImageLoaderSettings| {
                     settings.sampler = ImageSampler::nearest();
                 },
@@ -38,6 +47,7 @@ impl FromWorld for HandleMap<ImageKey> {
         )]
         .into()
     }
+    
 }
 
 #[derive(Copy, Clone, Eq, PartialEq, Hash, Reflect)]
