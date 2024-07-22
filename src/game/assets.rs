@@ -17,7 +17,7 @@ pub(super) fn plugin(app: &mut App) {
 
 #[derive(Copy, Clone, Eq, PartialEq, Hash, Reflect)]
 pub enum ImageKey {
-    Ducky,NPC
+    Ducky,Npc
 }
 
 impl AssetKey for ImageKey {
@@ -37,7 +37,7 @@ impl FromWorld for HandleMap<ImageKey> {
             ),
         ),
         (
-            ImageKey::NPC,
+            ImageKey::Npc,
             asset_server.load_with_settings(
                 "images/npc1.png",
                 |settings: &mut ImageLoaderSettings| {

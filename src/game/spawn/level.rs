@@ -42,7 +42,7 @@ fn spawn_someone(mut counter:ResMut<Counter>,mut commands:Commands)
 pub struct SpawnNPC;
 #[derive(Component, Debug, Clone, Copy, PartialEq, Eq, Default, Reflect)]
 #[reflect(Component)]
-pub struct NPC;
+pub struct Npc;
 
 
 
@@ -54,9 +54,9 @@ fn spawn_npc(_trigger: Trigger<SpawnNPC>, mut commands: Commands, image_handles:
 
     commands.spawn((
         Name::new("NPC"),
-        NPC,
+        Npc,
         SpriteBundle {
-            texture: image_handles[&ImageKey::NPC].clone_weak(),
+            texture: image_handles[&ImageKey::Npc].clone_weak(),
             transform: Transform::from_scale(Vec2::splat(2.0).extend(1.0))
             .with_translation(Vec3::new(100.0, 100.0, 0.0)),
             ..Default::default()
