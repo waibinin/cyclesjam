@@ -52,41 +52,60 @@ fn update_animation_movement(
 /// Update the animation timer.
 fn update_animation_timer(
     time: Res<Time>,
-    mut query: Query<(&mut PlayerAnimation, Option<&mut BasicAnimation>)>,
+    mut query0: Query<&mut PlayerAnimation>,
+    mut query1: Query<&mut BasicAnimation>,
 ) {
-    for (mut player_animation, maybe_basic_animation) in &mut query {
+    for mut player_animation in &mut query0 {
         player_animation.update_timer(time.delta());
+        println!("Updating player time");
+    }
 
-        if let Some(mut basic_animation) = maybe_basic_animation {
-            basic_animation.update_timer(time.delta());
-        }
+    for mut basic_animation in &mut query1 {
+        basic_animation.update_timer(time.delta());
+        println!("Updating basic time");
     }
 }
 
 // /// Update the texture atlas to reflect changes in the animation.
-fn update_animation_atlas(mut query: Query<(&PlayerAnimation, &mut TextureAtlas)>) {
-    for (animation, mut atlas) in &mut query {
-        if animation.changed() {
-            atlas.index = animation.get_atlas_index();
+// fn update_animation_atlas(
+//     mut query0: Query<(&PlayerAnimation, &mut TextureAtlas)>,
+//     mut query1: Query<(&BasicAnimation, &mut TextureAtlas)>,
+// ) {
+//     for (animation, mut atlas) in &mut query0 {
+//         if animation.changed() {
+//             atlas.index = animation.get_atlas_index();
+//         }
+//         for (animation, mut atlas) in &mut query1 {
+//             if animation.changed() {
+//                 atlas.index = animation.get_atlas_index();
+//             }
+//         }
+//     }
+// }
+
+fn update_animation_atlas(
+    mut animations: ParamSet<(
+        Query<(&PlayerAnimation, &mut TextureAtlas)>,
+        Query<(&BasicAnimation, &mut TextureAtlas)>,
+    )>,
+) {
+    {
+        let mut query0 = animations.p0();
+        for (animation, mut atlas) in query0.iter_mut() {
+            if animation.changed() {
+                atlas.index = animation.get_atlas_index();
+            }
+        }
+    }
+    {
+        let mut query1 = animations.p1();
+        for (animation, mut atlas) in query1.iter_mut() {
+            if animation.changed() {
+                atlas.index = animation.get_atlas_index();
+            }
         }
     }
 }
-// fn update_animation_atlas(
-//     mut query: QuerySet<(
-//         Query<(&PlayerAnimation, &mut TextureAtlasSprite)>,
-//         Query<(&BasicAnimation, &mut TextureAtlasSprite)>
-//     )>
-// ) {
-//     for (animation, mut sprite) in query.q0_mut().iter_mut() {
-//         if animation.changed() {
-//             sprite.index = animation.get_atlas_index();
-//         }
-//     }
-
-//     for (animation, mut sprite) in query.q1_mut().iter_mut() {
-//         sprite.index = animation.get_atlas_index();
-//     }
-// }
 
 /// If the player is moving, play a step sound effect synchronized with the animation.
 fn trigger_step_sfx(mut commands: Commands, mut step_query: Query<&PlayerAnimation>) {
@@ -140,6 +159,7 @@ impl BasicAnimation {
         }
     }
     pub fn update_timer(&mut self, delta: Duration) {
+        println!("{:?}", self.frame);
         self.timer.tick(delta);
         if self.timer.finished() {
             self.frame = (self.frame + 1) % self.num_frames;
@@ -148,6 +168,10 @@ impl BasicAnimation {
     /// Return sprite index in the atlas.
     pub fn get_atlas_index(&self) -> usize {
         self.frame
+    }
+    /// Whether animation changed this tick.
+    pub fn changed(&self) -> bool {
+        self.timer.finished()
     }
 }
 

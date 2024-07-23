@@ -15,6 +15,7 @@ use crate::Counter;
 pub(super) fn plugin(app: &mut App) {
     app.observe(spawn_level)
         .observe(spawn_npc)
+        .observe(despawn_someone)
         .add_systems(Update, spawn_someone);
 }
 
@@ -27,10 +28,23 @@ fn spawn_level(_trigger: Trigger<SpawnLevel>, mut commands: Commands) {
     commands.trigger(SpawnPlayer);
 }
 
-fn spawn_someone(mut counter: ResMut<Counter>, mut commands: Commands) {
+fn spawn_someone(counter: ResMut<Counter>, mut commands: Commands) {
     if counter.0 > 0.0 {
         commands.trigger(SpawnNPC);
-        counter.0 = 0.0;
+    } else if counter.0 > 1.0 {
+        commands.trigger(DespawnSomeone);
+    }
+}
+#[derive(Event, Debug)]
+pub struct DespawnSomeone;
+
+fn despawn_someone(
+    _trigger: Trigger<DespawnSomeone>,
+    mut commands: Commands,
+    query: Query<Entity, With<Npc>>,
+) {
+    for entity in query.iter() {
+        commands.entity(entity).despawn();
     }
 }
 
