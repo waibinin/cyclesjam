@@ -9,4 +9,17 @@ pub mod player;
 
 pub(super) fn plugin(app: &mut App) {
     app.add_plugins((level::plugin, player::plugin));
+    app.init_state::<GameState>();
+    app.enable_state_scoped_entities::<GameState>();
+}
+
+/// The game's main screen states.
+#[derive(States, Debug, Hash, PartialEq, Eq, Clone, Default)]
+pub enum GameState {
+    #[default]
+    Intro,
+    First,
+    // Second,
+    // Third,
+    // Ending,
 }

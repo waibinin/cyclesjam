@@ -5,7 +5,8 @@
 
 use bevy::{prelude::*, window::PrimaryWindow};
 
-use crate::{AppSet, Counter};
+use crate::game::spawn::level::Counter;
+use crate::AppSet;
 
 pub(super) fn plugin(app: &mut App) {
     // Record directional input as movement controls.

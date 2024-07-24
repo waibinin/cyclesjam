@@ -57,12 +57,11 @@ fn update_animation_timer(
 ) {
     for mut player_animation in &mut query0 {
         player_animation.update_timer(time.delta());
-        println!("Updating player time");
     }
 
     for mut basic_animation in &mut query1 {
         basic_animation.update_timer(time.delta());
-        println!("Updating basic time");
+        // println!("Updating basic time");
     }
 }
 

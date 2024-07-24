@@ -10,9 +10,6 @@ use bevy::{
     prelude::*,
 };
 
-#[derive(Resource, Default, Reflect)]
-#[reflect(Resource)]
-pub struct Counter(pub f32);
 pub struct AppPlugin;
 
 impl Plugin for AppPlugin {
@@ -56,8 +53,7 @@ impl Plugin for AppPlugin {
         );
 
         // Add other plugins.
-        app.add_plugins((game::plugin, screen::plugin, ui::plugin))
-            .insert_resource(Counter(0.0));
+        app.add_plugins((game::plugin, screen::plugin, ui::plugin));
 
         // Enable dev tools for dev builds.
         #[cfg(feature = "dev")]

@@ -1,22 +1,31 @@
 //! Spawn the main level by triggering other observers.
 
 use bevy::prelude::*;
-//use rand;
+use rand::Rng;
 
-use super::player::SpawnPlayer;
+use super::{player::SpawnPlayer, GameState};
 
 use crate::game::{
     animation::BasicAnimation,
     assets::{HandleMap, ImageKey},
 };
 use crate::screen::Screen;
-use crate::Counter;
+#[derive(Resource, Default, Reflect)]
+#[reflect(Resource)]
+pub struct Counter(pub f32);
+
+#[derive(Resource, Default, Reflect)]
+#[reflect(Resource)]
+pub struct SpawnControl(pub bool);
 
 pub(super) fn plugin(app: &mut App) {
     app.observe(spawn_level)
         .observe(spawn_npc)
         .observe(despawn_someone)
-        .add_systems(Update, spawn_someone);
+        .add_systems(Update, spawn_someone)
+        .insert_state(GameState::Intro)
+        .insert_resource(SpawnControl(false))
+        .insert_resource(Counter(0.0));
 }
 
 #[derive(Event, Debug)]
@@ -28,11 +37,36 @@ fn spawn_level(_trigger: Trigger<SpawnLevel>, mut commands: Commands) {
     commands.trigger(SpawnPlayer);
 }
 
-fn spawn_someone(counter: ResMut<Counter>, mut commands: Commands) {
-    if counter.0 > 0.0 {
-        commands.trigger(SpawnNPC);
-    } else if counter.0 > 1.0 {
-        commands.trigger(DespawnSomeone);
+fn spawn_someone(
+    mut counter: ResMut<Counter>,
+    mut commands: Commands,
+    game_state: Res<State<GameState>>,
+    mut next_state: ResMut<NextState<GameState>>,
+    mut spawn_control: ResMut<SpawnControl>,
+) {
+    match game_state.get() {
+        GameState::Intro => {
+            if counter.0 > 0.0 && !spawn_control.0 {
+                commands.trigger(SpawnNPC);
+                counter.0 = 0.0;
+                spawn_control.0 = true;
+            } else if counter.0 > 0.0 && spawn_control.0 {
+                commands.trigger(DespawnSomeone);
+                counter.0 = 0.0;
+                spawn_control.0 = false;
+                next_state.set(GameState::First);
+            }
+        }
+        GameState::First => {
+            if counter.0 > 0.0 && !spawn_control.0 {
+                commands.trigger(SpawnNPC);
+                commands.trigger(SpawnNPC);
+                counter.0 = 0.0;
+                spawn_control.0 = true;
+            }
+        } // GameState::Second => todo!(),
+          // GameState::Third => todo!(),
+          // GameState::Ending => todo!(),
     }
 }
 #[derive(Event, Debug)]
@@ -64,13 +98,18 @@ fn spawn_npc(
     let texture_atlas_layout = texture_atlas_layouts.add(layout);
     let npc_animation = BasicAnimation::new();
 
+    let mut rng = rand::thread_rng();
+    let x = rng.gen_range(0.0..500.0); // Adjust the range as needed
+    let y = rng.gen_range(0.0..500.0); // Adjust the range as needed
+    let translation = Vec3::new(x, y, 0.0);
+
     commands.spawn((
         Name::new("NPC"),
         Npc,
         SpriteBundle {
             texture: image_handles[&ImageKey::Npc].clone_weak(),
             transform: Transform::from_scale(Vec2::splat(2.0).extend(1.0))
-                .with_translation(Vec3::new(100.0, 100.0, 0.0)),
+                .with_translation(translation),
             ..Default::default()
         },
         TextureAtlas {
