@@ -1,6 +1,8 @@
 //! Spawn the main level by triggering other observers.
 
+use avian2d::prelude::*;
 use bevy::prelude::*;
+
 use rand::Rng;
 
 use super::{player::SpawnPlayer, GameState};
@@ -25,7 +27,12 @@ pub(super) fn plugin(app: &mut App) {
         .add_systems(Update, spawn_someone)
         .insert_state(GameState::Intro)
         .insert_resource(SpawnControl(false))
-        .insert_resource(Counter(0.0));
+        .insert_resource(Counter(0.0))
+        .add_plugins(
+            // Add physics plugins and specify a units-per-meter scaling factor, 1 meter = 20 pixels.
+            // The unit allows the engine to tune its parameters for the scale of the world, improving stability.
+            PhysicsPlugins::default().with_length_unit(100.0),
+        );
 }
 
 #[derive(Event, Debug)]
@@ -118,5 +125,14 @@ fn spawn_npc(
         },
         npc_animation,
         StateScoped(Screen::Playing),
+        RigidBody::Dynamic,
+        Collider::rectangle(20.0, 20.0),
+        GravityScale(0.0),
+        Friction::new(0.7),
+        {
+            let locked_axes = LockedAxes::ROTATION_LOCKED;
+            locked_axes.lock_translation_y();
+            locked_axes
+        },
     ));
 }

@@ -1,5 +1,6 @@
 //! Spawn the player.
 
+use avian2d::prelude::*;
 use bevy::prelude::*;
 
 use crate::{
@@ -54,5 +55,11 @@ fn spawn_player(
         WrapWithinWindow,
         player_animation,
         StateScoped(Screen::Playing),
+        RigidBody::Dynamic,
+        GravityScale(0.0),
+        Collider::rectangle(20.0, 20.0),
+        ColliderDensity(1.5),
+        Friction::new(0.8),
+        LockedAxes::ROTATION_LOCKED.lock_translation_y(),
     ));
 }
