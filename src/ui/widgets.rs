@@ -129,10 +129,11 @@ impl Containers for Commands<'_, '_> {
                 style: Style {
                     width: Percent(100.0),
                     height: Percent(100.0),
-                    justify_content: JustifyContent::Center,
-                    align_items: AlignItems::Center,
+                    justify_content: JustifyContent::End,
+                    align_items: AlignItems::End,
                     flex_direction: FlexDirection::Column,
                     row_gap: Px(10.0),
+                    padding: UiRect::px(10.0, 10.0, 10.0, 10.0),
                     position_type: PositionType::Absolute,
                     ..default()
                 },
