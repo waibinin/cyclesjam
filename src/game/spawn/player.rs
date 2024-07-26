@@ -24,6 +24,26 @@ pub struct SpawnPlayer;
 #[reflect(Component)]
 pub struct Player;
 
+#[derive(Bundle)]
+struct PlayerBundle {
+    name: Name,
+    player: Player,
+    sprite: SpriteBundle,
+    texture_atlas: TextureAtlas,
+    movement_controller: MovementController,
+    movement: Movement,
+    wrap_within_window: WrapWithinWindow,
+    player_animation: PlayerAnimation,
+    state_scoped: StateScoped<Screen>,
+    rigid_body: RigidBody,
+    gravity_scale: GravityScale,
+    collider: Collider,
+    collider_density: ColliderDensity,
+    friction: Friction,
+    locked_axes: LockedAxes,
+    linear_damping: LinearDamping,
+}
+
 fn spawn_player(
     _trigger: Trigger<SpawnPlayer>,
     mut commands: Commands,
@@ -38,28 +58,54 @@ fn spawn_player(
     let texture_atlas_layout = texture_atlas_layouts.add(layout);
     let player_animation = PlayerAnimation::new();
 
-    commands.spawn((
-        Name::new("Player"),
-        Player,
-        SpriteBundle {
+    commands.spawn(PlayerBundle {
+        name: Name::new("Player"),
+        player: Player,
+        sprite: SpriteBundle {
             texture: image_handles[&ImageKey::Ducky].clone_weak(),
-            transform: Transform::from_scale(Vec2::splat(4.0).extend(1.0)),
+            transform: Transform::from_scale(Vec2::splat(4.0).extend(1.0))
+                .with_translation(Vec3::new(0.0, 0.0, 1.0)),
             ..Default::default()
         },
-        TextureAtlas {
-            layout: texture_atlas_layout.clone(),
+        texture_atlas: TextureAtlas {
+            layout: texture_atlas_layout,
             index: player_animation.get_atlas_index(),
         },
-        MovementController::default(),
-        Movement { speed: 420.0 },
-        WrapWithinWindow,
+        movement_controller: MovementController::default(),
+        movement: Movement { speed: 420.0 },
+        wrap_within_window: WrapWithinWindow,
         player_animation,
-        StateScoped(Screen::Playing),
-        RigidBody::Dynamic,
-        GravityScale(0.0),
-        Collider::rectangle(20.0, 20.0),
-        ColliderDensity(1.5),
-        Friction::new(0.8),
-        LockedAxes::ROTATION_LOCKED.lock_translation_y(),
-    ));
+        state_scoped: StateScoped(Screen::Playing),
+        rigid_body: RigidBody::Kinematic,
+        gravity_scale: GravityScale(0.0),
+        collider: Collider::rectangle(20.0, 20.0),
+        collider_density: ColliderDensity(1.5),
+        friction: Friction::new(0.8),
+        locked_axes: LockedAxes::ROTATION_LOCKED.lock_translation_y(),
+        linear_damping: LinearDamping(0.8),
+        //     Name::new("Player"),
+        //     Player,
+        //     SpriteBundle {
+        //         texture: image_handles[&ImageKey::Ducky].clone_weak(),
+        //         transform: Transform::from_scale(Vec2::splat(4.0).extend(1.0))
+        //             .with_translation(Vec3::new(0.0, 0.0, 1.0)),
+        //         ..Default::default()
+        //     },
+        //     TextureAtlas {
+        //         layout: texture_atlas_layout.clone(),
+        //         index: player_animation.get_atlas_index(),
+        //     },
+        //     MovementController::default(),
+        //     Movement { speed: 420.0 },
+        //     WrapWithinWindow,
+        //     player_animation,
+        //     StateScoped(Screen::Playing),
+        //     RigidBody::Dynamic,
+        //     GravityScale(0.0),
+        //     Collider::rectangle(20.0, 20.0),
+        //     ColliderDensity(1.5),
+        //     Friction::new(0.8),
+        //    LockedAxes::ROTATION_LOCKED.lock_translation_y(),
+        //     LinearDamping(0.8),
+    });
 }

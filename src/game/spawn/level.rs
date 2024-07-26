@@ -1,6 +1,8 @@
 //! Spawn the main level by triggering other observers.
 
-use avian2d::prelude::*;
+//use avian2d::prelude::*;
+use avian2d::{math::*, prelude::*};
+
 use bevy::prelude::*;
 
 use rand::Rng;
@@ -25,7 +27,8 @@ pub(super) fn plugin(app: &mut App) {
         .observe(spawn_npc)
         .observe(spawn_item)
         .observe(despawn_someone)
-        .add_systems(Update, spawn_someone)
+        // .observe(destroy_joints)
+        .add_systems(Update, (spawn_someone, create_distance_joint_system))
         .insert_state(GameState::Intro)
         .insert_resource(SpawnControl(false))
         .insert_resource(Counter(0.0))
@@ -58,6 +61,8 @@ fn spawn_someone(
     match game_state.get() {
         GameState::Intro => {
             if counter.0 > 0.0 && !spawn_control.0 {
+                commands.trigger(DespawnSomeone);
+                // commands.trigger(DestroyJoints);
                 commands.trigger(SpawnNPC);
                 for _ in 0..30 {
                     commands.trigger(SpawnItem);
@@ -66,6 +71,11 @@ fn spawn_someone(
                 spawn_control.0 = true;
             } else if counter.0 > 0.0 && spawn_control.0 {
                 commands.trigger(DespawnSomeone);
+                // commands.trigger(DestroyJoints);
+
+                for _ in 0..20 {
+                    commands.trigger(SpawnItem);
+                }
                 counter.0 = 0.0;
                 spawn_control.0 = false;
                 next_state.set(GameState::First);
@@ -73,16 +83,42 @@ fn spawn_someone(
         }
         GameState::First => {
             if counter.0 > 0.0 && !spawn_control.0 {
-                commands.trigger(SpawnNPC);
-                commands.trigger(SpawnNPC);
+                commands.trigger(DespawnSomeone);
+                // commands.trigger(DestroyJoints);
+                for _ in 1..3 {
+                    commands.trigger(SpawnNPC);
+                }
+                for _ in 0..30 {
+                    commands.trigger(SpawnItem);
+                }
+                counter.0 = 0.0;
+                spawn_control.0 = true;
+            } else if counter.0 > 0.0 && spawn_control.0 {
+                commands.trigger(DespawnSomeone);
+                // commands.trigger(DestroyJoints);
+                for _ in 0..20 {
+                    commands.trigger(SpawnItem);
+                }
+                counter.0 = 0.0;
+                spawn_control.0 = false;
+                next_state.set(GameState::Second);
+            }
+        }
+
+        GameState::Second => {
+            if counter.0 > 0.0 && !spawn_control.0 {
+                commands.trigger(DespawnSomeone);
+                // commands.trigger(DestroyJoints);
+                for _ in 1..10 {
+                    commands.trigger(SpawnNPC);
+                }
                 for _ in 0..30 {
                     commands.trigger(SpawnItem);
                 }
                 counter.0 = 0.0;
                 spawn_control.0 = true;
             }
-        } // GameState::Second => todo!(),
-          // GameState::Third => todo!(),
+        } // GameState::Third => todo!(),
           // GameState::Ending => todo!(),
     }
 }
@@ -92,7 +128,7 @@ pub struct DespawnSomeone;
 fn despawn_someone(
     _trigger: Trigger<DespawnSomeone>,
     mut commands: Commands,
-    query: Query<Entity, (With<Npc>, With<Item>)>,
+    query: Query<Entity, Or<(With<Npc>, With<Item>)>>,
 ) {
     for entity in query.iter() {
         commands.entity(entity).despawn();
@@ -116,18 +152,21 @@ fn spawn_npc(
     let npc_animation = BasicAnimation::new();
 
     let mut rng = rand::thread_rng();
-    let x = rng.gen_range(-500.0..500.0); // Adjust the range as needed
-    let y = rng.gen_range(-500.0..500.0); // Adjust the range as needed
-    let translation = Vec3::new(x, y, 0.0);
+    let x = rng.gen_range(-400.0..400.0); // Adjust the range as needed
+    let y = rng.gen_range(-400.0..400.0); // Adjust the range as needed
+    let translation = Vec3::new(x, y, 1.0);
 
     // Generate a random number between 1 and 3
-    let npc_index = rng.gen_range(1..=3);
+    let npc_index = rng.gen_range(1..=5);
+    println!("Generated NPC Index: {}", npc_index); // Debugging line
 
     // Determine the correct texture handle based on the random number
     let npc_texture = match npc_index {
         1 => image_handles[&ImageKey::Npc1].clone_weak(),
         2 => image_handles[&ImageKey::Npc2].clone_weak(),
         3 => image_handles[&ImageKey::Npc3].clone_weak(),
+        4 => image_handles[&ImageKey::Npc4].clone_weak(),
+        5 => image_handles[&ImageKey::Npc5].clone_weak(),
         _ => image_handles[&ImageKey::Npc1].clone_weak(), // Fallback
     };
 
@@ -150,6 +189,7 @@ fn spawn_npc(
         Collider::rectangle(20.0, 20.0),
         GravityScale(0.0),
         Friction::new(0.7),
+        LinearDamping(0.8),
         {
             let locked_axes = LockedAxes::ROTATION_LOCKED;
             locked_axes.lock_translation_y();
@@ -195,3 +235,41 @@ fn spawn_item(
         },
     ));
 }
+
+// // A system that creates a distance joint between colliding entities
+// // A system that creates a distance joint between colliding entities
+fn create_distance_joint_system(
+    mut commands: Commands,
+    query: Query<(Entity, &CollidingEntities, &Transform), With<Npc>>,
+    transform_query: Query<(Entity, &Transform), With<Npc>>,
+) {
+    for (entity1, colliding_entities, _transform1) in query.iter() {
+        for &entity2 in colliding_entities.iter() {
+            if let Ok(_transform2) = transform_query.get(entity2) {
+                commands.spawn(
+                    DistanceJoint::new(entity1, entity2)
+                        .with_local_anchor_1(Vector::ZERO)
+                        .with_local_anchor_2(Vector::ZERO)
+                        .with_rest_length(100.0)
+                        .with_linear_velocity_damping(0.0)
+                        .with_angular_velocity_damping(0.0)
+                        .with_compliance(0.00000001),
+                );
+            }
+        }
+    }
+}
+
+// #[derive(Event, Debug)]
+// pub struct DestroyJoints;
+
+// fn destroy_joints(
+//     _trigger: Trigger<DestroyJoints>,
+//     mut commands: Commands,
+//     query: Query<(Entity, &DistanceJoint)>,
+// ) {
+//     for (entity, distance_joint) in query.iter() {
+//         commands.entity(entity).despawn();
+//         println!("Entity: {:?}, DistanceJoint: {:?}", entity, distance_joint);
+//     }
+// }

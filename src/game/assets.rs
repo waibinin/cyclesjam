@@ -21,6 +21,8 @@ pub enum ImageKey {
     Npc1,
     Npc2,
     Npc3,
+    Npc4,
+    Npc5,
     Elements,
 }
 
@@ -63,6 +65,24 @@ impl FromWorld for HandleMap<ImageKey> {
                 ImageKey::Npc3,
                 asset_server.load_with_settings(
                     "images/npc3.png",
+                    |settings: &mut ImageLoaderSettings| {
+                        settings.sampler = ImageSampler::nearest();
+                    },
+                ),
+            ),
+            (
+                ImageKey::Npc4,
+                asset_server.load_with_settings(
+                    "images/npc4.png",
+                    |settings: &mut ImageLoaderSettings| {
+                        settings.sampler = ImageSampler::nearest();
+                    },
+                ),
+            ),
+            (
+                ImageKey::Npc5,
+                asset_server.load_with_settings(
+                    "images/npc5.png",
                     |settings: &mut ImageLoaderSettings| {
                         settings.sampler = ImageSampler::nearest();
                     },

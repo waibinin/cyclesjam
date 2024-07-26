@@ -65,23 +65,6 @@ fn update_animation_timer(
     }
 }
 
-// /// Update the texture atlas to reflect changes in the animation.
-// fn update_animation_atlas(
-//     mut query0: Query<(&PlayerAnimation, &mut TextureAtlas)>,
-//     mut query1: Query<(&BasicAnimation, &mut TextureAtlas)>,
-// ) {
-//     for (animation, mut atlas) in &mut query0 {
-//         if animation.changed() {
-//             atlas.index = animation.get_atlas_index();
-//         }
-//         for (animation, mut atlas) in &mut query1 {
-//             if animation.changed() {
-//                 atlas.index = animation.get_atlas_index();
-//             }
-//         }
-//     }
-// }
-
 fn update_animation_atlas(
     mut animations: ParamSet<(
         Query<(&PlayerAnimation, &mut TextureAtlas)>,
@@ -158,7 +141,6 @@ impl BasicAnimation {
         }
     }
     pub fn update_timer(&mut self, delta: Duration) {
-        println!("{:?}", self.frame);
         self.timer.tick(delta);
         if self.timer.finished() {
             self.frame = (self.frame + 1) % self.num_frames;

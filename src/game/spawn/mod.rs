@@ -19,7 +19,7 @@ pub enum GameState {
     #[default]
     Intro,
     First,
-    // Second,
+    Second,
     // Third,
     // Ending,
 }
