@@ -262,10 +262,7 @@ fn spawn_popup(
         .ui_root()
         .with_children(|parent| {
             parent.dialogue_bubble("Hello, Player!", &font_handles);
-            println!(
-                "Added dialogue bubble to NPC with entity ID: {:?}",
-                popup_entity
-            );
+            println!("Added  bubble to entity ID: {:?}", popup_entity);
         })
         .id();
 }
