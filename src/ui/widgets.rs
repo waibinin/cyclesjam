@@ -180,7 +180,6 @@ impl<T: Spawn> Widgets for T {
                         font_size: 48.0,
 
                         color: LABEL_TEXT,
-                        ..default()
                     },
                 ),
             ));
