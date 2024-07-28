@@ -78,7 +78,6 @@ impl<T: Spawn> Widgets for T {
                         font: font_handles[&FontKey::UiFont].clone_weak(),
                         font_size: 40.0,
                         color: BUTTON_TEXT,
-                        ..default()
                     },
                 ),
             ));
@@ -114,7 +113,6 @@ impl<T: Spawn> Widgets for T {
                         font: font_handles[&FontKey::UiFont].clone_weak(),
                         font_size: 40.0,
                         color: HEADER_TEXT,
-                        ..default()
                     },
                 ),
             ));
@@ -148,7 +146,6 @@ impl<T: Spawn> Widgets for T {
                         font: font_handles[&FontKey::UiFont].clone_weak(),
                         font_size: 24.0,
                         color: LABEL_TEXT,
-                        ..default()
                     },
                 ),
             ));
