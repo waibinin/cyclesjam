@@ -13,6 +13,24 @@ pub(super) fn plugin(app: &mut App) {
 
     app.register_type::<HandleMap<SoundtrackKey>>();
     app.init_resource::<HandleMap<SoundtrackKey>>();
+
+    app.register_type::<HandleMap<FontKey>>();
+    app.init_resource::<HandleMap<FontKey>>();
+}
+
+#[derive(Copy, Clone, Eq, PartialEq, Hash, Reflect)]
+pub enum FontKey {
+    UiFont,
+}
+
+impl AssetKey for FontKey {
+    type Asset = Font;
+}
+impl FromWorld for HandleMap<FontKey> {
+    fn from_world(world: &mut World) -> Self {
+        let asset_server = world.resource::<AssetServer>();
+        [(FontKey::UiFont, asset_server.load("fonts/m5x7.ttf"))].into()
+    }
 }
 
 #[derive(Copy, Clone, Eq, PartialEq, Hash, Reflect)]
@@ -24,6 +42,8 @@ pub enum ImageKey {
     Npc4,
     Npc5,
     Elements,
+    PopUp,
+    TitleImage,
 }
 
 impl AssetKey for ImageKey {
@@ -92,6 +112,24 @@ impl FromWorld for HandleMap<ImageKey> {
                 ImageKey::Elements,
                 asset_server.load_with_settings(
                     "images/elementos.png",
+                    |settings: &mut ImageLoaderSettings| {
+                        settings.sampler = ImageSampler::nearest();
+                    },
+                ),
+            ),
+            (
+                ImageKey::PopUp,
+                asset_server.load_with_settings(
+                    "images/CarotaSheet.png",
+                    |settings: &mut ImageLoaderSettings| {
+                        settings.sampler = ImageSampler::nearest();
+                    },
+                ),
+            ),
+            (
+                ImageKey::TitleImage,
+                asset_server.load_with_settings(
+                    "images/titleimage.png",
                     |settings: &mut ImageLoaderSettings| {
                         settings.sampler = ImageSampler::nearest();
                     },

@@ -1,23 +1,55 @@
 //! Helper traits for creating common widgets.
 
+// use bevy::ecs::system::SystemParam;
 use bevy::{ecs::system::EntityCommands, prelude::*, ui::Val::*};
 
 use super::{interaction::InteractionPalette, palette::*};
 
+use crate::game::assets::{FontKey, HandleMap};
+
+// #[derive(SystemParam)]
+// pub struct WidgetParams<'w, 's> {
+//     commands: Commands<'w, 's>,
+//     font_handles: Res<'w, HandleMap<FontKey>>,
+// }
+
 /// An extension trait for spawning UI widgets.
 pub trait Widgets {
     /// Spawn a simple button with text.
-    fn button(&mut self, text: impl Into<String>) -> EntityCommands;
+    fn button(
+        &mut self,
+        text: impl Into<String>,
+        font_handles: &Res<HandleMap<FontKey>>,
+    ) -> EntityCommands;
 
     /// Spawn a simple header label. Bigger than [`Widgets::label`].
-    fn header(&mut self, text: impl Into<String>) -> EntityCommands;
+    fn header(
+        &mut self,
+        text: impl Into<String>,
+        font_handles: &Res<HandleMap<FontKey>>,
+    ) -> EntityCommands;
 
     /// Spawn a simple text label.
-    fn label(&mut self, text: impl Into<String>) -> EntityCommands;
+    fn label(
+        &mut self,
+        text: impl Into<String>,
+        font_handles: &Res<HandleMap<FontKey>>,
+    ) -> EntityCommands;
+    /// Spawn a dialogue bubble above an NPC.
+    fn dialogue_bubble(
+        &mut self,
+        text: impl Into<String>,
+        font_handles: &Res<HandleMap<FontKey>>,
+    ) -> EntityCommands;
 }
 
 impl<T: Spawn> Widgets for T {
-    fn button(&mut self, text: impl Into<String>) -> EntityCommands {
+    //impl<'w, 's> Widgets for WidgetParams<'w, 's> {
+    fn button(
+        &mut self,
+        text: impl Into<String>,
+        font_handles: &Res<HandleMap<FontKey>>,
+    ) -> EntityCommands {
         let mut entity = self.spawn((
             Name::new("Button"),
             ButtonBundle {
@@ -43,6 +75,7 @@ impl<T: Spawn> Widgets for T {
                 TextBundle::from_section(
                     text,
                     TextStyle {
+                        font: font_handles[&FontKey::UiFont].clone_weak(),
                         font_size: 40.0,
                         color: BUTTON_TEXT,
                         ..default()
@@ -53,7 +86,11 @@ impl<T: Spawn> Widgets for T {
         entity
     }
 
-    fn header(&mut self, text: impl Into<String>) -> EntityCommands {
+    fn header(
+        &mut self,
+        text: impl Into<String>,
+        font_handles: &Res<HandleMap<FontKey>>,
+    ) -> EntityCommands {
         let mut entity = self.spawn((
             Name::new("Header"),
             NodeBundle {
@@ -74,6 +111,7 @@ impl<T: Spawn> Widgets for T {
                 TextBundle::from_section(
                     text,
                     TextStyle {
+                        font: font_handles[&FontKey::UiFont].clone_weak(),
                         font_size: 40.0,
                         color: HEADER_TEXT,
                         ..default()
@@ -84,7 +122,11 @@ impl<T: Spawn> Widgets for T {
         entity
     }
 
-    fn label(&mut self, text: impl Into<String>) -> EntityCommands {
+    fn label(
+        &mut self,
+        text: impl Into<String>,
+        font_handles: &Res<HandleMap<FontKey>>,
+    ) -> EntityCommands {
         let mut entity = self.spawn((
             Name::new("Label"),
             NodeBundle {
@@ -103,7 +145,43 @@ impl<T: Spawn> Widgets for T {
                 TextBundle::from_section(
                     text,
                     TextStyle {
+                        font: font_handles[&FontKey::UiFont].clone_weak(),
                         font_size: 24.0,
+                        color: LABEL_TEXT,
+                        ..default()
+                    },
+                ),
+            ));
+        });
+        entity
+    }
+    fn dialogue_bubble(
+        &mut self,
+        text: impl Into<String>,
+        font_handles: &Res<HandleMap<FontKey>>,
+    ) -> EntityCommands {
+        let mut entity = self.spawn((
+            Name::new("Bubble"),
+            NodeBundle {
+                style: Style {
+                    position_type: PositionType::Absolute,
+                    bottom: Val::Px(50.0),
+                    ..default()
+                },
+                visibility: Visibility::Visible,
+                transform: Transform::from_xyz(0.0, 50.0, 0.0), // Adjust Y offset
+                ..default()
+            },
+        ));
+        entity.with_children(|children| {
+            children.spawn((
+                Name::new("Bubble Text"),
+                TextBundle::from_section(
+                    text,
+                    TextStyle {
+                        font: font_handles[&FontKey::UiFont].clone_weak(),
+                        font_size: 48.0,
+
                         color: LABEL_TEXT,
                         ..default()
                     },

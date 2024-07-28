@@ -60,8 +60,17 @@ fn update_animation_timer(
     }
 
     for mut basic_animation in &mut query1 {
+        // println!(
+        //     "Before update: Timer: {:?}, Frame: {}",
+        //     basic_animation.timer.elapsed(),
+        //     basic_animation.frame
+        // ); // Debugging statement
         basic_animation.update_timer(time.delta());
-        // println!("Updating basic time");
+        // println!(
+        //     "After update: Timer: {:?}, Frame: {}",
+        //     basic_animation.timer.elapsed(),
+        //     basic_animation.frame
+        // ); // Debugging statement
     }
 }
 
@@ -124,20 +133,18 @@ pub enum PlayerAnimationState {
     Walking,
 }
 impl BasicAnimation {
-    /// The number of idle frames.
-    // const FRAMES: usize = 2;
     /// The duration of each idle frame.
     const INTERVAL: Duration = Duration::from_millis(500);
 
-    pub fn new() -> Self {
-        Self::idling()
+    pub fn new(num_frames: usize) -> Self {
+        Self::idling(num_frames)
     }
 
-    fn idling() -> Self {
+    fn idling(num_frames: usize) -> Self {
         Self {
             timer: Timer::new(Self::INTERVAL, TimerMode::Repeating),
             frame: 0,
-            num_frames: 2,
+            num_frames,
         }
     }
     pub fn update_timer(&mut self, delta: Duration) {

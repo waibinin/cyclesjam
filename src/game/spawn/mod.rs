@@ -5,10 +5,11 @@
 use bevy::prelude::*;
 
 pub mod level;
+pub mod npc;
 pub mod player;
 
 pub(super) fn plugin(app: &mut App) {
-    app.add_plugins((level::plugin, player::plugin));
+    app.add_plugins((level::plugin, player::plugin, npc::plugin));
     app.init_state::<GameState>();
     app.enable_state_scoped_entities::<GameState>();
 }
