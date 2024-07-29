@@ -21,6 +21,6 @@ pub enum GameState {
     Intro,
     First,
     Second,
-    // Third,
-    // Ending,
+    Third,
+    Ending,
 }

@@ -37,7 +37,7 @@ pub(super) fn plugin(app: &mut App) {
     );
 }
 
-const SPLASH_BACKGROUND_COLOR: Color = Color::srgb(0.58823, 0.4235, 0.4235);
+const SPLASH_BACKGROUND_COLOR: Color = Color::srgb(0.1960, 0.2, 0.3254);
 const SPLASH_DURATION_SECS: f32 = 1.8;
 const SPLASH_FADE_DURATION_SECS: f32 = 0.6;
 

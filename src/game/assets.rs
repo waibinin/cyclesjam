@@ -35,13 +35,19 @@ impl FromWorld for HandleMap<FontKey> {
 
 #[derive(Copy, Clone, Eq, PartialEq, Hash, Reflect)]
 pub enum ImageKey {
-    Ducky,
+    Player,
     Npc1,
     Npc2,
     Npc3,
     Npc4,
     Npc5,
+    Npc6,
+    Npc7,
+    Npc8,
+    Npc9,
+    Npc10,
     Elements,
+    Elements2,
     PopUp,
     TitleImage,
 }
@@ -55,7 +61,7 @@ impl FromWorld for HandleMap<ImageKey> {
         let asset_server = world.resource::<AssetServer>();
         [
             (
-                ImageKey::Ducky,
+                ImageKey::Player,
                 asset_server.load_with_settings(
                     "images/guy.png",
                     |settings: &mut ImageLoaderSettings| {
@@ -109,9 +115,63 @@ impl FromWorld for HandleMap<ImageKey> {
                 ),
             ),
             (
+                ImageKey::Npc6,
+                asset_server.load_with_settings(
+                    "images/Npc6.png",
+                    |settings: &mut ImageLoaderSettings| {
+                        settings.sampler = ImageSampler::nearest();
+                    },
+                ),
+            ),
+            (
+                ImageKey::Npc7,
+                asset_server.load_with_settings(
+                    "images/NPC7.png",
+                    |settings: &mut ImageLoaderSettings| {
+                        settings.sampler = ImageSampler::nearest();
+                    },
+                ),
+            ),
+            (
+                ImageKey::Npc8,
+                asset_server.load_with_settings(
+                    "images/NPC8.png",
+                    |settings: &mut ImageLoaderSettings| {
+                        settings.sampler = ImageSampler::nearest();
+                    },
+                ),
+            ),
+            (
+                ImageKey::Npc9,
+                asset_server.load_with_settings(
+                    "images/Npc9.png",
+                    |settings: &mut ImageLoaderSettings| {
+                        settings.sampler = ImageSampler::nearest();
+                    },
+                ),
+            ),
+            (
+                ImageKey::Npc10,
+                asset_server.load_with_settings(
+                    "images/Npc10.png",
+                    |settings: &mut ImageLoaderSettings| {
+                        settings.sampler = ImageSampler::nearest();
+                    },
+                ),
+            ),
+            (
                 ImageKey::Elements,
                 asset_server.load_with_settings(
                     "images/elementos.png",
+                    |settings: &mut ImageLoaderSettings| {
+                        settings.sampler = ImageSampler::nearest();
+                    },
+                ),
+            ),
+            (
+                ImageKey::Elements2,
+                asset_server.load_with_settings(
+                    "images/Pelos.png",
                     |settings: &mut ImageLoaderSettings| {
                         settings.sampler = ImageSampler::nearest();
                     },
@@ -195,7 +255,7 @@ impl FromWorld for HandleMap<SoundtrackKey> {
             ),
             (
                 SoundtrackKey::Gameplay,
-                asset_server.load("audio/soundtracks/Fluffing A Duck.ogg"),
+                asset_server.load("audio/soundtracks/eyesost.ogg"),
             ),
         ]
         .into()

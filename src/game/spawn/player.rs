@@ -62,7 +62,7 @@ fn spawn_player(
         name: Name::new("Player"),
         player: Player,
         sprite: SpriteBundle {
-            texture: image_handles[&ImageKey::Ducky].clone_weak(),
+            texture: image_handles[&ImageKey::Player].clone_weak(),
             transform: Transform::from_scale(Vec2::splat(4.0).extend(1.0))
                 .with_translation(Vec3::new(0.0, 0.0, 1.0)),
             ..Default::default()

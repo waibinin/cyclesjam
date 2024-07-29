@@ -13,6 +13,10 @@ use crate::game::assets::{FontKey, HandleMap};
 //     font_handles: Res<'w, HandleMap<FontKey>>,
 // }
 
+#[derive(Component, Debug, Clone, Copy, PartialEq, Eq, Default, Reflect)]
+#[reflect(Component)]
+pub struct VoiceComponent;
+
 /// An extension trait for spawning UI widgets.
 pub trait Widgets {
     /// Spawn a simple button with text.
@@ -182,6 +186,7 @@ impl<T: Spawn> Widgets for T {
                         color: LABEL_TEXT,
                     },
                 ),
+                VoiceComponent,
             ));
         });
         entity

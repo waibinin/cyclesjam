@@ -18,8 +18,6 @@ pub struct SpawnNPC;
 #[derive(Component, Debug, Clone, Copy, PartialEq, Eq, Default, Reflect)]
 #[reflect(Component)]
 pub struct Npc;
-#[derive(Component, Default)]
-struct DialogueBubble;
 
 fn spawn_npc(
     _trigger: Trigger<SpawnNPC>,
@@ -32,12 +30,12 @@ fn spawn_npc(
     let npc_animation = BasicAnimation::new(2);
 
     let mut rng = rand::thread_rng();
-    let x = rng.gen_range(-400.0..400.0); // Adjust the range as needed
-    let y = rng.gen_range(-400.0..400.0); // Adjust the range as needed
+    let x = rng.gen_range(-800.0..800.0); // Adjust the range as needed
+    let y = rng.gen_range(-800.0..800.0); // Adjust the range as needed
     let translation = Vec3::new(x, y, 1.0);
 
     // Generate a random number between 1 and 3
-    let npc_index = rng.gen_range(1..=5);
+    let npc_index = rng.gen_range(1..=10);
     println!("Generated NPC Index: {}", npc_index); // Debugging line
 
     // Determine the correct texture handle based on the random number
@@ -47,6 +45,11 @@ fn spawn_npc(
         3 => image_handles[&ImageKey::Npc3].clone_weak(),
         4 => image_handles[&ImageKey::Npc4].clone_weak(),
         5 => image_handles[&ImageKey::Npc5].clone_weak(),
+        6 => image_handles[&ImageKey::Npc6].clone_weak(),
+        7 => image_handles[&ImageKey::Npc7].clone_weak(),
+        8 => image_handles[&ImageKey::Npc8].clone_weak(),
+        9 => image_handles[&ImageKey::Npc9].clone_weak(),
+        10 => image_handles[&ImageKey::Npc10].clone_weak(),
         _ => image_handles[&ImageKey::Npc1].clone_weak(), // Fallback
     };
 
@@ -66,10 +69,10 @@ fn spawn_npc(
         npc_animation,
         StateScoped(Screen::Playing),
         RigidBody::Dynamic,
-        Collider::rectangle(20.0, 20.0),
+        Collider::rectangle(10.0, 10.0),
         GravityScale(0.0),
-        Friction::new(0.7),
-        LinearDamping(0.8),
+        Friction::new(1.0),
+        LinearDamping(5.0),
         {
             let locked_axes = LockedAxes::ROTATION_LOCKED;
             locked_axes.lock_translation_y();

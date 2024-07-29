@@ -32,15 +32,11 @@ fn enter_credits(mut commands: Commands, font_handles: Res<HandleMap<FontKey>>) 
         .insert(StateScoped(Screen::Credits))
         .with_children(|children| {
             children.header("Made by", &font_handles);
-            children.label("Alice - Foo", &font_handles);
-            children.label("Bob - Bar", &font_handles);
+            children.label("Leandro Waibe", &font_handles);
 
-            children.header("Assets", &font_handles);
-            children.label("Bevy logo - All rights reserved by the Bevy Foundation. Permission granted for splash screen use when unmodified.", &font_handles);
-            children.label("Ducky sprite - CC0 by Caz Creates Games", &font_handles);
-            children.label("Music - CC BY 3.0 by Kevin MacLeod", &font_handles);
-
-            children.button("Back", &font_handles).insert(CreditsAction::Back);
+            children
+                .button("Back", &font_handles)
+                .insert(CreditsAction::Back);
         });
 
     commands.trigger(PlaySoundtrack::Key(SoundtrackKey::Credits));
