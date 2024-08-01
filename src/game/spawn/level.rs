@@ -6,26 +6,28 @@ use bevy::prelude::*;
 use std::collections::HashSet;
 
 use crate::screen::Screen;
-use crate::ui::prelude::*;
+// use crate::ui::prelude::*;
 
-use crate::ui::widgets::VoiceComponent;
-use rand::Rng;
+// use crate::ui::widgets::VoiceComponent;
+//use rand::Rng;
 
 use super::{
+    bigface::{FacePopUp, SpawnPopUp, TextVoice},
     npc::{Npc, SpawnNPC},
     player::SpawnPlayer,
+    tiles::{Item, SpawnItem},
     GameState,
 };
 
-use crate::game::{
-    animation::BasicAnimation,
-    assets::{FontKey, HandleMap, ImageKey},
-};
+// use crate::game::{
+//     animation::BasicAnimation,
+//     assets::{FontKey, HandleMap, ImageKey},
+// };
 
-#[derive(Resource, Default)]
-struct TextVoice {
-    pub text: String,
-}
+// #[derive(Resource, Default)]
+// struct TextVoice {
+//     pub text: String,
+// }
 
 #[derive(Resource, Default, Reflect)]
 #[reflect(Resource)]
@@ -37,15 +39,11 @@ pub struct SpawnControl(pub bool);
 
 pub(super) fn plugin(app: &mut App) {
     app.observe(spawn_level)
-        .insert_resource(TextVoice::default())
-        .insert_resource(TextBubbleEntity(Entity::from_raw(0))) // Initialize with a dummy entity
-        .observe(spawn_item)
         .observe(despawn_everyone)
-        .observe(spawn_popup)
         .observe(destroy_joints)
         .add_systems(
             Update,
-            (spawn_logic, create_distance_joint_system, update_voice_text),
+            (spawn_logic, create_distance_joint_system), //, update_voice_text),
         )
         .insert_state(GameState::Intro)
         .insert_resource(SpawnControl(false))
@@ -214,62 +212,6 @@ fn despawn_everyone(
     }
 }
 
-#[derive(Component, Debug, Clone, Copy, PartialEq, Eq, Default, Reflect)]
-#[reflect(Component)]
-pub struct Item;
-
-#[derive(Event, Debug)]
-pub struct SpawnItem;
-
-fn spawn_item(
-    _trigger: Trigger<SpawnItem>,
-    mut commands: Commands,
-    image_handles: Res<HandleMap<ImageKey>>,
-    mut texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,
-) {
-    // Create a texture atlas
-    let layout = TextureAtlasLayout::from_grid(UVec2::splat(16), 3, 3, Some(UVec2::splat(1)), None);
-    let texture_atlas_layout = texture_atlas_layouts.add(layout);
-    let mut rng = rand::thread_rng();
-    let x = rng.gen_range(-500.0..500.0); // Adjust the range as needed
-    let y = rng.gen_range(-500.0..500.0); // Adjust the range as needed
-    let translation = Vec3::new(x, y, 0.0);
-    //let sprite_index = rng.gen_range(0..9); // Random index from 0 to 8
-
-    commands.spawn((
-        Name::new("Item"),
-        Item,
-        SpriteBundle {
-            texture: image_handles[&ImageKey::Elements].clone_weak(),
-            transform: Transform::from_scale(Vec2::splat(4.0).extend(1.0))
-                .with_translation(translation),
-            ..Default::default()
-        },
-        TextureAtlas {
-            layout: texture_atlas_layout.clone(),
-            index: rng.gen_range(0..9),
-        },
-    ));
-
-    let x2 = rng.gen_range(-800.0..800.0); // Adjust the range as needed
-    let y2 = rng.gen_range(-800.0..800.0); // Adjust the range as needed
-    let translation2 = Vec3::new(x2, y2, 0.0);
-    commands.spawn((
-        Name::new("Hair"),
-        Item,
-        SpriteBundle {
-            texture: image_handles[&ImageKey::Elements2].clone_weak(),
-            transform: Transform::from_scale(Vec2::splat(4.0).extend(1.0))
-                .with_translation(translation2),
-            ..Default::default()
-        },
-        TextureAtlas {
-            layout: texture_atlas_layout.clone(),
-            index: rng.gen_range(0..9),
-        },
-    ));
-}
-
 // A system that creates a distance joint between colliding entities
 fn create_distance_joint_system(
     mut commands: Commands,
@@ -315,74 +257,5 @@ fn destroy_joints(
     for (entity, _distance_joint) in query.iter() {
         commands.entity(entity).despawn();
         //println!("Entity: {:?}, DistanceJoint: {:?}", entity, distance_joint);
-    }
-}
-
-#[derive(Component, Debug, Clone, Copy, PartialEq, Eq, Default, Reflect)]
-#[reflect(Component)]
-pub struct FacePopUp;
-
-#[derive(Event, Debug)]
-pub struct SpawnPopUp;
-#[derive(Resource)]
-struct TextBubbleEntity(Entity);
-
-fn spawn_popup(
-    _trigger: Trigger<SpawnPopUp>,
-    mut commands: Commands,
-    image_handles: Res<HandleMap<ImageKey>>,
-    mut texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,
-    font_handles: Res<HandleMap<FontKey>>,
-    mut text_voice: ResMut<TextVoice>,
-    mut text_bubble_entity: ResMut<TextBubbleEntity>,
-) {
-    // Create a texture atlas
-    let layout =
-        TextureAtlasLayout::from_grid(UVec2 { x: 240, y: 180 }, 3, 1, Some(UVec2::splat(1)), None);
-    let texture_atlas_layout = texture_atlas_layouts.add(layout);
-    let translation = Vec3::new(0.0, 0.0, 1.0);
-    let popup_animation = BasicAnimation::new(3);
-
-    //let popup_entity =
-    commands.spawn((
-        Name::new("PopUp"),
-        FacePopUp,
-        SpriteBundle {
-            texture: image_handles[&ImageKey::PopUp].clone_weak(),
-            transform: Transform::from_scale(Vec2::splat(4.0).extend(1.0))
-                .with_translation(translation),
-            ..Default::default()
-        },
-        TextureAtlas {
-            layout: texture_atlas_layout.clone(),
-            index: popup_animation.get_atlas_index(),
-        },
-        popup_animation,
-    ));
-    //.id();
-
-    // Spawn the UI root and dialogue bubble
-    let bubble_entity = commands
-        .ui_root()
-        .with_children(|parent| {
-            // Store the bubble text entity in the resource
-            text_voice.text = "Hello, dreamer, again.".to_string();
-            parent.dialogue_bubble(text_voice.text.clone(), &font_handles);
-        })
-        .id();
-
-    // Store the bubble entity in the resource
-    text_bubble_entity.0 = bubble_entity;
-}
-
-fn update_voice_text(
-    mut query: Query<&mut Text, With<VoiceComponent>>,
-    text_voice: Res<TextVoice>,
-) {
-    for mut text in query.iter_mut() {
-        //println!("Updating text to: {}", text_voice.text);
-        if !text.sections.is_empty() {
-            text.sections[0].value = text_voice.text.clone();
-        }
     }
 }

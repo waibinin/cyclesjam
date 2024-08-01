@@ -4,12 +4,20 @@
 
 use bevy::prelude::*;
 
+pub mod bigface;
 pub mod level;
 pub mod npc;
 pub mod player;
+pub mod tiles;
 
 pub(super) fn plugin(app: &mut App) {
-    app.add_plugins((level::plugin, player::plugin, npc::plugin));
+    app.add_plugins((
+        level::plugin,
+        player::plugin,
+        npc::plugin,
+        tiles::plugin,
+        bigface::plugin,
+    ));
     app.init_state::<GameState>();
     app.enable_state_scoped_entities::<GameState>();
 }
